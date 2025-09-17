@@ -1,14 +1,21 @@
 export default async function handler(req, res) {
-  const symbol = req.query.q || "ENI.MI";
-  const url = `https://query1.finance.yahoo.com/v7/finance/quote?symbols=${symbol}`;
-  const response = await fetch(url);
-  const data = await response.json();
-  const r = data.quoteResponse.result[0];
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.json({
-    symbol: r.symbol,
-    price: r.regularMarketPrice,
-    change: r.regularMarketChange,
-    percent: r.regularMarketChangePercent
-  });
+  const symbol = (req.query.q || "eni.def").toLowerCase();
+  const url = `https://stooq.com/q/l/?s=${symbol}&f=sd2t2ohlcv&h&e=csv`;
+  
+  try {
+    const response = await fetch(url);
+    const text = await response.text();
+    
+    const lines = text.trim().split("\n");
+    const parts = lines[1].split(",");
+    const close = parts[6]; // colonna Close
+
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.json({
+      symbol: symbol.toUpperCase(),
+      price: parseFloat(close)
+    });
+  } catch (err) {
+    res.status(500).json({ error: "Errore nel proxy", details: err.message });
+  }
 }
