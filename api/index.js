@@ -1,5 +1,5 @@
 export default async function handler(req, res) {
-  const symbol = (req.query.q || "eni.def").toLowerCase();
+  const symbol = (req.query.q || "aapl.us").toLowerCase();
   const url = `https://stooq.com/q/l/?s=${symbol}&f=sd2t2ohlcv&h&e=csv`;
   
   try {
